@@ -1,0 +1,5 @@
+DROP DATABASE accountsDB;
+CREATE DATABASE IF NOT EXISTS accountsDB;
+USE accountsDB;
+
+SELECT * FROM account;
