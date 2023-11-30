@@ -1,15 +1,13 @@
 package com.example.journalaccountservice.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 public class SignUpDTO {
     private String name;
     private String role;
     private int age;
     private String sex;
+
 
     public SignUpDTO(String name, String role, int age, String sex) {
         this.name = name;
@@ -49,4 +47,6 @@ public class SignUpDTO {
     public void setSex(String sex) {
         this.sex = sex;
     }
+
+
 }

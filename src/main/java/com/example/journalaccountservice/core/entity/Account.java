@@ -3,6 +3,9 @@ package com.example.journalaccountservice.core.entity;
 
 import com.example.journalaccountservice.persistence.entity.AccountDB;
 import com.example.journalaccountservice.util.enums.Role;
+import lombok.Data;
+
+@Data
 public class Account {
     private final String id;
     private String email;
