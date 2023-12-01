@@ -39,6 +39,14 @@ public class AccountsService implements IAccountsService {
         return Account.convertFromDB(accountDB.get());
     }
 
+    @Override
+    public Account delete(String id){
+        Optional<AccountDB> a = accountRepository.findById(id);
+        if(a.isEmpty()) return null;
+        accountRepository.delete(a.get());
+        return Account.convertFromDB(a.get());
+    }
+
     public Account findByEmail(String email){
         AccountDB accountDB = accountRepository.findByEmail(email);
         if(accountDB == null)
@@ -49,7 +57,15 @@ public class AccountsService implements IAccountsService {
     public Account create(Account account){
         if(accountRepository.findByEmail(account.getEmail()) != null) return null;
 
-        AccountDB createdAccount = new AccountDB(account.getId(),account.getEmail(), account.getPassword(), account.getName(),account.getRole());
+        AccountDB createdAccount = new AccountDB(
+                account.getId(),
+                account.getEmail(),
+                account.getPassword(),
+                account.getName(),
+                account.getRole(),
+                account.getStaffID(),
+                account.getPatientID()
+        );
         createdAccount = accountRepository.save(createdAccount);
         return Account.convertFromDB(createdAccount);
     }

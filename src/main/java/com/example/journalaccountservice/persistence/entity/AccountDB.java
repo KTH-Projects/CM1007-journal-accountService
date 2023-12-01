@@ -27,6 +27,25 @@ public class AccountDB {
     @Column(nullable = false)
     private Role role;
 
+    private String staffID;
+    private String patientID;
+
+    public String getStaffID() {
+        return staffID;
+    }
+
+    public void setStaffID(String staffID) {
+        this.staffID = staffID;
+    }
+
+    public String getPatientID() {
+        return patientID;
+    }
+
+    public void setPatientID(String patientID) {
+        this.patientID = patientID;
+    }
+
     public Role getRole() {
         return role;
     }
@@ -35,9 +54,28 @@ public class AccountDB {
         this.role = role;
     }
 
+    public AccountDB(String id, String email, String password, String name, Role role, String staffID, String patientID) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.role = role;
+        this.staffID = staffID;
+        this.patientID = patientID;
+    }
 
     public static AccountDB convertFromCore(Account account){
         return new AccountDB(account.getId(),account.getEmail(),account.getPassword(), account.getName(),account.getRole());
+    }
+    public static AccountDB convertAllFromCore(Account account){ //TODO there is no cookie here
+        return new AccountDB(
+                account.getId(),
+                account.getEmail(),
+                account.getPassword(),
+                account.getName(),
+                account.getRole(),
+                account.getStaffID(),
+                account.getPatientID());
     }
 
     public AccountDB(String id, String email, String password, String name, Role role) {

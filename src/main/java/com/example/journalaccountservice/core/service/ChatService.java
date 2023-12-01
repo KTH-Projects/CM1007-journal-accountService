@@ -39,7 +39,7 @@ public class ChatService implements IChatService{
     public ChatService(IAccountsService accountsService, ObjectMapper objectMapper) {
         this.accountsService = accountsService;
         this.objectMapper = objectMapper;
-        this.webClient = WebClient.create("http://localhost:8082"); // Replace with your actual API base URL
+        this.webClient = WebClient.create("http://localhost:8082");
     }
 
     @Override

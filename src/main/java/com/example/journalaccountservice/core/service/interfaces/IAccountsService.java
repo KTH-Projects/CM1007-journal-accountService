@@ -7,6 +7,7 @@ import com.example.journalaccountservice.core.entity.Account;
 import java.util.List;
 
 public interface IAccountsService {
+    public Account delete(String id);
     public List<Account> findAll();
     public Account findByEmail(String email);
     public Account findByID(String id);

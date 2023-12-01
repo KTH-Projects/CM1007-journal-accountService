@@ -131,11 +131,14 @@ public class AccountController {
     @PostMapping("/signup")
     public ResponseEntity<Account> signUp(@RequestBody SignUpRequest signUpRequest,
                                           HttpServletResponse response) {
-        // Everyone can create account
-        // Defaults to patient
         try {
-            //if(!journalService.create(signUpRequest.getSignupDTO()))
-              //  return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            if(accountService.findByEmail(signUpRequest.getAccount().getEmail()) != null)
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            String id = journalService.create(signUpRequest.getSignupDTO());
+            if(id == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            setIdForAccount(signUpRequest.getAccount(),id);
             Account acc = accountService.create(signUpRequest.getAccount());
 
             String cookieToken = cookieService.createCookie(acc);
@@ -155,7 +158,13 @@ public class AccountController {
         }
     }
 
+    private void setIdForAccount(Account account, String id){
+        if(account.getRole().name().equals("doctor") || account.getRole().name().equals( "staff" ) )
+            account.setStaffID(id);
+        else
+            account.setPatientID(id);
 
+    }
 
     @PostMapping(path = "/login")
     public ResponseEntity<Account> login(@RequestBody Account accountLogin, HttpServletResponse response) {
