@@ -100,6 +100,8 @@ public class AccountController {
     public ResponseEntity<Message> sendChat(@RequestParam String toEmail,@RequestParam String message,@CookieValue("userSessionID") String userSessionID){
         Account fromAcc = cookieService.findAccountByCookie(userSessionID);
         Account toAcc = accountService.findByEmail(toEmail);
+        if(toAcc==null)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         Message msg = chatService.postChat(toAcc,fromAcc,message);
         if(msg==null)
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -109,6 +111,18 @@ public class AccountController {
     public ResponseEntity<List<Message>> getMyMessages(@CookieValue("userSessionID") String userSessionID){
         Account fromAcc = cookieService.findAccountByCookie(userSessionID);
         List<Message> messages = chatService.getChatsFromAccount(fromAcc);
+        if(messages==null)
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(messages,HttpStatus.CREATED);
+    }
+
+    @GetMapping("/message/chat")
+    public ResponseEntity<List<Message>> getMessagesFromAccAndToAcc(@RequestParam String toEmail,@CookieValue("userSessionID") String userSessionID){
+        Account fromAcc = cookieService.findAccountByCookie(userSessionID);
+        Account toAccount = accountService.findByEmail(toEmail);
+        if(fromAcc == null || toAccount == null)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        List<Message> messages = chatService.getChatsFromAccountANDtoAccount(toAccount,fromAcc);
         if(messages==null)
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         return new ResponseEntity<>(messages,HttpStatus.CREATED);

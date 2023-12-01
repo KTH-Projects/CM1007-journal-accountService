@@ -88,21 +88,14 @@ public class ChatService implements IChatService{
             String json = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/message")
-                            .queryParam("fromId", fromAccount.getId()) // Replace with the actual parameter name
+                            .queryParam("fromId", fromAccount.getId())
                             .build())
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
             System.out.println("Successfully retrieved JSON: " + json);
 
-            Gson gson = new Gson();
-            Type messageType = new TypeToken<List<MessageDTO>>() {}.getType();
-            List<MessageDTO> messageDTOs = gson.fromJson(json, messageType);
-            var messages = new ArrayList<Message>();
-            for (MessageDTO msgDTO : messageDTOs){
-               messages.add( findMessageFromDTO(msgDTO) );
-            }
-            return messages;
+            return convertJsonToListOfMessages(json);
         }catch (Exception e){
             System.out.println("Could not send message: "+ e.getMessage());
             return null;
@@ -111,7 +104,33 @@ public class ChatService implements IChatService{
 
     @Override
     public List<Message> getChatsFromAccountANDtoAccount(Account toAccount, Account fromAccount) {
-        return null;
+        try{
+            String json = webClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/message/chat")
+                            .queryParam("fromId", fromAccount.getId())
+                            .queryParam("toId",toAccount.getId())
+                            .build())
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+            System.out.println("Successfully retrieved JSON: " + json);
+            return convertJsonToListOfMessages(json);
+        }catch (Exception e){
+            System.out.println("Could not send message: "+ e.getMessage());
+            return null;
+        }
+    }
+
+    private List<Message> convertJsonToListOfMessages(String json){
+        Gson gson = new Gson();
+        Type messageType = new TypeToken<List<MessageDTO>>() {}.getType();
+        List<MessageDTO> messageDTOs = gson.fromJson(json, messageType);
+        var messages = new ArrayList<Message>();
+        for (MessageDTO msgDTO : messageDTOs){
+            messages.add( findMessageFromDTO(msgDTO) );
+        }
+        return messages;
     }
 
 

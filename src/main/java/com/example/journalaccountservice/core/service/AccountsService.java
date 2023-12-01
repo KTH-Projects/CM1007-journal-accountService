@@ -41,6 +41,8 @@ public class AccountsService implements IAccountsService {
 
     public Account findByEmail(String email){
         AccountDB accountDB = accountRepository.findByEmail(email);
+        if(accountDB == null)
+            return null;
         return Account.convertFromDB(accountDB);
     }
 
