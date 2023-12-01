@@ -105,6 +105,14 @@ public class AccountController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         return new ResponseEntity<>(msg,HttpStatus.CREATED);
     }
+    @GetMapping("/message")
+    public ResponseEntity<List<Message>> getMyMessages(@CookieValue("userSessionID") String userSessionID){
+        Account fromAcc = cookieService.findAccountByCookie(userSessionID);
+        List<Message> messages = chatService.getChatsFromAccount(fromAcc);
+        if(messages==null)
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(messages,HttpStatus.CREATED);
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<Account> signUp(@RequestBody SignUpRequest signUpRequest,

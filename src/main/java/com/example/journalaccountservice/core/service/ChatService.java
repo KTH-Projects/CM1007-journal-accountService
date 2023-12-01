@@ -26,6 +26,7 @@ import java.net.http.HttpResponse;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 @Service
@@ -68,7 +69,7 @@ public class ChatService implements IChatService{
         }
     }
 
-    public Message findMessageFromDTO(MessageDTO messageDTO){
+    private Message findMessageFromDTO(MessageDTO messageDTO){
          Account fromAcc = accountsService.findByID(messageDTO.getFromId());
          Account toAcc = accountsService.findByID(messageDTO.getToId());
          if(fromAcc == null || toAcc == null)
@@ -80,25 +81,28 @@ public class ChatService implements IChatService{
                  messageDTO.getMessage()
          );
     }
-    /*
+
     @Override
     public List<Message> getChatsFromAccount(Account fromAccount) {
         try{
             String json = webClient.get()
                     .uri(uriBuilder -> uriBuilder
-                            .path("/send")
-                            .queryParam("",fromAccount )
+                            .path("/message")
+                            .queryParam("fromId", fromAccount.getId()) // Replace with the actual parameter name
                             .build())
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
-            System.out.println("Successfull post! JSON: " + json);
+            System.out.println("Successfully retrieved JSON: " + json);
+
             Gson gson = new Gson();
-            Type messageType = new TypeToken<List<Message>>() {}.getType();
-            List<Message> messageDTOs = gson.fromJson(json, messageType);
-            //Account fromAcc = accountsService.findByID(msgDTO.getFromId());
-            //Account toAcc = accountsService.findByID(msgDTO.getToId());
-            return null;
+            Type messageType = new TypeToken<List<MessageDTO>>() {}.getType();
+            List<MessageDTO> messageDTOs = gson.fromJson(json, messageType);
+            var messages = new ArrayList<Message>();
+            for (MessageDTO msgDTO : messageDTOs){
+               messages.add( findMessageFromDTO(msgDTO) );
+            }
+            return messages;
         }catch (Exception e){
             System.out.println("Could not send message: "+ e.getMessage());
             return null;
@@ -109,11 +113,6 @@ public class ChatService implements IChatService{
     public List<Message> getChatsFromAccountANDtoAccount(Account toAccount, Account fromAccount) {
         return null;
     }
-    private static HttpClient createHttpClientWithSSL() throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException {
-        return HttpClient.newBuilder()
-                .sslContext(javax.net.ssl.SSLContext.getDefault())
-                .build();
-    }
 
-     */
+
 }

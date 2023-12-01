@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface IChatService {
     Message postChat(Account toAccount, Account fromAccount, String msg);
-   // List<Message> getChatsFromAccount(Account fromAccount);
-   // List<Message> getChatsFromAccountANDtoAccount(Account toAccount, Account fromAccount);
+    List<Message> getChatsFromAccount(Account fromAccount);
+    List<Message> getChatsFromAccountANDtoAccount(Account toAccount, Account fromAccount);
 }
