@@ -27,60 +27,69 @@ public class CookieService implements ICookieService {
     public String createCookie(Account account){
         AccountDB accountDB = accountRepository.findByEmail(account.getEmail());
 
-        CookieDB returnSession = cookieRepository.save(new CookieDB(accountDB));
+        CookieDB returnCookie = cookieRepository.save(new CookieDB(accountDB));
 
-        accountDB.setCookie(returnSession);
+        accountDB.setCookie(returnCookie);
         accountRepository.save(accountDB);
 
-        return returnSession.getId();
+        return returnCookie.getId();
     }
 
     @Override
     public String findCookieByAccount(Account account){
         AccountDB accountDB = accountRepository.findByEmail(account.getEmail());
-        CookieDB sessionDB = cookieRepository.findByAccount(accountDB);
-        return sessionDB.getId();
+        CookieDB cookieDB = cookieRepository.findByAccount(accountDB);
+        return cookieDB.getId();
     }
 
     @Override
-    public Account findAccountByCookie(String userSessionID) {
-        AccountDB accountDB = accountRepository.findByCookie_Id(userSessionID);
+    public Account findAccountByCookie(String userCookieID) {
+        AccountDB accountDB = accountRepository.findByCookie_Id(userCookieID);
         if(accountDB == null) return null;
         return Account.convertFromDB(accountDB);
     }
 
     @Override
-    public boolean isValidCookie(String userSessionID){
-        String cookieID = userSessionID;
+    public boolean isValidCookie(String userCookieID){
+        String cookieID = userCookieID;
         if(cookieID == null) return false;
         AccountDB accountDB = accountRepository.findByCookie_Id(cookieID);
-        CookieDB sessionDB = cookieRepository.findByAccount(accountDB);
-        return sessionDB.isValid();
+        CookieDB cookieDB = cookieRepository.findByAccount(accountDB);
+        return cookieDB.isValid();
     }
 
     @Override
-    public boolean isDoctor(String userSessionID) {
-        if(!isValidCookie(userSessionID)) return false;
-        String cookieID = userSessionID;
+    public boolean isDoctor(String userCookieID) {
+        if(!isValidCookie(userCookieID)) return false;
+        String cookieID = userCookieID;
         if(cookieID == null) return false;
         AccountDB accountDB = accountRepository.findByCookie_Id(cookieID);
         return accountDB.getRole().equals(Role.doctor);
     }
 
-    public boolean isOther(String userSessionID) {
-        if(!isValidCookie(userSessionID)) return false;
-        String cookieID = userSessionID;
+    public boolean isOther(String userCookieID) {
+        if(!isValidCookie(userCookieID)) return false;
+        String cookieID = userCookieID;
         if(cookieID == null) return false;
         AccountDB accountDB = accountRepository.findByCookie_Id(cookieID);
         return accountDB.getRole().equals(Role.other);
     }
     @Override
-    public boolean isDoctorOrStaff(String userSessionID) {
-        if(!isValidCookie(userSessionID)) return false;
-        String cookieID = userSessionID;
+    public boolean isDoctorOrStaff(String userCookieID) {
+        if(!isValidCookie(userCookieID)) return false;
+        String cookieID = userCookieID;
         if(cookieID == null) return false;
         AccountDB accountDB = accountRepository.findByCookie_Id(cookieID);
         return accountDB.getRole().equals(Role.doctor) || accountDB.getRole().equals(Role.other);
+    }
+
+    @Override
+    public boolean isPatient(String userCookieID) {
+        if(!isValidCookie(userCookieID)) return false;
+        String cookieID = userCookieID;
+        if(cookieID == null) return false;
+        AccountDB accountDB = accountRepository.findByCookie_Id(cookieID);
+        return accountDB.getRole().equals(Role.patient);
     }
 
 

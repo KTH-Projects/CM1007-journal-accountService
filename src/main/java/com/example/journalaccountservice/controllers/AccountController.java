@@ -41,7 +41,7 @@ public class AccountController {
 
 
     @GetMapping("")
-    public ResponseEntity<List<Account>> getAll(@CookieValue("userSessionID") String userSessionID)
+    public ResponseEntity<List<Account>> getAll(@CookieValue("userCookieID") String userSessionID)
     {
         if(!cookieService.isValidCookie(userSessionID)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         return ResponseEntity.ok(accountService.findAll());
@@ -49,8 +49,8 @@ public class AccountController {
     }
 
     @GetMapping("/{email}")
-    public ResponseEntity<Account> getByEmail(@PathVariable String email,@CookieValue("userSessionID") String userSessionID) {
-        if(!cookieService.isDoctorOrStaff(userSessionID)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    public ResponseEntity<Account> getByEmail(@PathVariable String email,@CookieValue("userCookieID") String userCookieID) {
+        if(!cookieService.isDoctorOrStaff(userCookieID)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         Account account = accountService.findByEmail(email);
         if (account == null) {
@@ -97,8 +97,8 @@ public class AccountController {
 
          */
     @PostMapping("/send")
-    public ResponseEntity<Message> sendChat(@RequestParam String toEmail,@RequestParam String message,@CookieValue("userSessionID") String userSessionID){
-        Account fromAcc = cookieService.findAccountByCookie(userSessionID);
+    public ResponseEntity<Message> sendChat(@RequestParam String toEmail,@RequestParam String message,@CookieValue("userCookieID") String userCookieID){
+        Account fromAcc = cookieService.findAccountByCookie(userCookieID);
         Account toAcc = accountService.findByEmail(toEmail);
         if(toAcc==null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -108,8 +108,8 @@ public class AccountController {
         return new ResponseEntity<>(msg,HttpStatus.CREATED);
     }
     @GetMapping("/message")
-    public ResponseEntity<List<Message>> getMyMessages(@CookieValue("userSessionID") String userSessionID){
-        Account fromAcc = cookieService.findAccountByCookie(userSessionID);
+    public ResponseEntity<List<Message>> getMyMessages(@CookieValue("userCookieID") String userCookieID){
+        Account fromAcc = cookieService.findAccountByCookie(userCookieID);
         List<Message> messages = chatService.getChatsFromAccount(fromAcc);
         if(messages==null)
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -117,8 +117,9 @@ public class AccountController {
     }
 
     @GetMapping("/message/chat")
-    public ResponseEntity<List<Message>> getMessagesFromAccAndToAcc(@RequestParam String toEmail,@CookieValue("userSessionID") String userSessionID){
-        Account fromAcc = cookieService.findAccountByCookie(userSessionID);
+    public ResponseEntity<List<Message>> getMessagesFromAccAndToAcc(@RequestParam String toEmail,
+                                                                    @CookieValue("userCookieID") String userCookieID){
+        Account fromAcc = cookieService.findAccountByCookie(userCookieID);
         Account toAccount = accountService.findByEmail(toEmail);
         if(fromAcc == null || toAccount == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -142,9 +143,9 @@ public class AccountController {
             Account acc = accountService.create(signUpRequest.getAccount());
 
             String cookieToken = cookieService.createCookie(acc);
-            Cookie userIdCookie = new Cookie("userSessionID", cookieToken);
-            userIdCookie.setPath("/");
-            response.addCookie(userIdCookie);
+            Cookie userCookieID = new Cookie("userCookieID", cookieToken);
+            userCookieID.setPath("/");
+            response.addCookie(userCookieID);
 
             return new ResponseEntity<>(acc, HttpStatus.CREATED);
         }
@@ -173,10 +174,10 @@ public class AccountController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        String sessionToken = cookieService.createCookie(accountCore);
-        Cookie userIdCookie = new Cookie("userSessionID", sessionToken);
-        userIdCookie.setPath("/");
-        response.addCookie(userIdCookie);
+        String cookieToken = cookieService.createCookie(accountCore);
+        Cookie userCookieID = new Cookie("userCookieID", cookieToken);
+        userCookieID.setPath("/");
+        response.addCookie(userCookieID);
         return ResponseEntity.ok(accountCore);
     }
 }
