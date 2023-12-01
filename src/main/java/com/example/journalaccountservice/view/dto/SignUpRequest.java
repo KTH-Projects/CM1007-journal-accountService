@@ -1,4 +1,4 @@
-package com.example.journalaccountservice.dto;
+package com.example.journalaccountservice.view.dto;
 
 import com.example.journalaccountservice.core.entity.Account;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;

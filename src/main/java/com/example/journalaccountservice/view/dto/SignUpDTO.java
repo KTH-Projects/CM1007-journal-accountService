@@ -1,4 +1,4 @@
-package com.example.journalaccountservice.dto;
+package com.example.journalaccountservice.view.dto;
 
 import lombok.*;
 

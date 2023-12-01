@@ -1,11 +1,10 @@
 package com.example.journalaccountservice.core.service;
 
 import com.example.journalaccountservice.core.service.interfaces.IJournalService;
-import com.example.journalaccountservice.dto.SignUpDTO;
+import com.example.journalaccountservice.view.dto.SignUpDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.ArrayList;
 @Service
 public class JournalService implements IJournalService {
     private final WebClient webClient;

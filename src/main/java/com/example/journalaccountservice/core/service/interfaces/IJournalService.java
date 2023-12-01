@@ -1,6 +1,6 @@
 package com.example.journalaccountservice.core.service.interfaces;
 
-import com.example.journalaccountservice.dto.SignUpDTO;
+import com.example.journalaccountservice.view.dto.SignUpDTO;
 
 public interface IJournalService {
     boolean postPatient(SignUpDTO signUpDTO) ;

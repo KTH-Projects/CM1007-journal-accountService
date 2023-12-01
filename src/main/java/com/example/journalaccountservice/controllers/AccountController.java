@@ -1,17 +1,15 @@
 package com.example.journalaccountservice.controllers;
 
 import com.example.journalaccountservice.core.entity.Account;
+import com.example.journalaccountservice.core.entity.Message;
 import com.example.journalaccountservice.core.service.interfaces.IAccountsService;
+import com.example.journalaccountservice.core.service.interfaces.IChatService;
 import com.example.journalaccountservice.core.service.interfaces.ICookieService;
 import com.example.journalaccountservice.core.service.interfaces.IJournalService;
-import com.example.journalaccountservice.dto.SignUpDTO;
-import com.example.journalaccountservice.dto.SignUpRequest;
+import com.example.journalaccountservice.view.dto.SignUpRequest;
 import jakarta.persistence.EntityExistsException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,16 +26,17 @@ public class AccountController {
     private final IAccountsService accountService;
     private final ICookieService cookieService;
     private final IJournalService journalService;
-    //private final IChatService chatService;
+    private final IChatService chatService;
 
     @Autowired
     public AccountController(IAccountsService accountService, ICookieService cookieService,
-                             IJournalService journalService
+                             IJournalService journalService,
+                             IChatService chatService
                              ) {
         this.accountService = accountService;
         this.cookieService = cookieService;
         this.journalService = journalService;
-        //this.chatService = chatService;
+        this.chatService = chatService;
     }
 
 
@@ -97,6 +96,15 @@ public class AccountController {
     }
 
          */
+    @PostMapping("/send")
+    public ResponseEntity<Message> sendChat(@RequestParam String toEmail,@RequestParam String message,@CookieValue("userSessionID") String userSessionID){
+        Account fromAcc = cookieService.findAccountByCookie(userSessionID);
+        Account toAcc = accountService.findByEmail(toEmail);
+        Message msg = chatService.postChat(toAcc,fromAcc,message);
+        if(msg==null)
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(msg,HttpStatus.CREATED);
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<Account> signUp(@RequestBody SignUpRequest signUpRequest,
@@ -104,8 +112,8 @@ public class AccountController {
         // Everyone can create account
         // Defaults to patient
         try {
-            if(!journalService.create(signUpRequest.getSignupDTO()))
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            //if(!journalService.create(signUpRequest.getSignupDTO()))
+              //  return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             Account acc = accountService.create(signUpRequest.getAccount());
 
             String cookieToken = cookieService.createCookie(acc);
