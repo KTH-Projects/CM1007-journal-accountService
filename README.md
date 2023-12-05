@@ -1,6 +1,6 @@
 # CM1007-journal-accountService
 
-#Containerisation
+# Containerisation
 ## Creating joint network 
 docker network create journalNet
 
