@@ -10,7 +10,8 @@ import reactor.core.publisher.Mono;
 public class JournalService implements IJournalService {
     private final WebClient webClient;
     public JournalService(){
-        this.webClient = WebClient.create("http://localhost:8080/journal");
+        this.webClient = WebClient.create(System.getenv("JOURNAL_SERVICE_URL")+"/journal");
+        System.out.println(System.getenv("JOURNAL_SERVICE_URL")+"/journal");
 
     }
     @Override

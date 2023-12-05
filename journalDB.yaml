@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: journalDB-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: journalDB
+  template:
+    metadata:
+      labels:
+        app: journalDB
+    spec:
+      containers:
+        - name: journalDB
+          image: mysql:latest
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: journalDB-secret
+                  key: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: journalDB-secret
+                  key: MYSQL_DATABASE
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: journalDB-secret
+                  key: MYSQL_USER
+            - name: MYSQL_URL
+              valueFrom:
+                configKey:
+                  name: journalDB-secret
+                  key: MYSQL_URL
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: journalDB-service
+spec:
+  selector:
+    app: journalDB
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP
