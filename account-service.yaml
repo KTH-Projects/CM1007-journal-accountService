@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: account-service
-          image: caffeqq/journalsystem:account_service
+          image: caffeqq/journalsystem:account-service
           ports:
             - containerPort: 8081
           env:
@@ -40,6 +40,12 @@ spec:
                 secretKeyRef:
                   name: journaldb-secret
                   key: MYSQL_URL
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: journaldb-secret
+                  key: MYSQL_PASSWORD
+
 
 ---
 apiVersion: v1
