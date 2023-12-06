@@ -1,50 +1,47 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: journalDB-deployment
+  name: journaldb-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: journalDB
+      app: journaldb
   template:
     metadata:
       labels:
-        app: journalDB
+        app: journaldb
     spec:
       containers:
-        - name: journalDB
+        - name: journaldb
           image: mysql:latest
+          ports:
+            - containerPort: 3306
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: journalDB-secret
+                  name: journaldb-secret
                   key: MYSQL_ROOT_PASSWORD
             - name: MYSQL_DATABASE
               valueFrom:
                 secretKeyRef:
-                  name: journalDB-secret
+                  name: journaldb-secret
                   key: MYSQL_DATABASE
-            - name: MYSQL_USER
+            - name: DATABASE_HOST
               valueFrom:
                 secretKeyRef:
-                  name: journalDB-secret
-                  key: MYSQL_USER
-            - name: MYSQL_URL
-              valueFrom:
-                configKey:
-                  name: journalDB-secret
-                  key: MYSQL_URL
+                  name: journaldb-secret
+                  key: DATABASE_HOST
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: journalDB-service
+  name: journaldb-service
 spec:
   selector:
-    app: journalDB
+    app: journaldb
   ports:
     - protocol: TCP
       port: 3306

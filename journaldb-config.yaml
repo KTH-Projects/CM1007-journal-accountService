@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: journaldb-config
+data:
+    journalDB-url: journaldb-service
+

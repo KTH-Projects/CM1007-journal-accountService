@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: account-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: account-service
+  template:
+    metadata:
+      labels:
+        app: account-service
+    spec:
+      containers:
+        - name: account-service
+          image: caffeqq/journalsystem:account_service
+          ports:
+            - containerPort: 8081
+          env:
+            - name: JOURNAL_SERVICE_URL
+              value: "http://journal-service-service:8080"
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: journaldb-secret
+                  key: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: journaldb-secret
+                  key: MYSQL_DATABASE
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: journaldb-secret
+                  key: MYSQL_USER
+            - name: MYSQL_URL
+              valueFrom:
+                secretKeyRef:
+                  name: journaldb-secret
+                  key: MYSQL_URL
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: account-service-service
+spec:
+  type: NodePort
+  selector:
+    app: account-service
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+      nodePort: 30001
