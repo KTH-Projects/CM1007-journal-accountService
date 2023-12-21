@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
         - name: account-service
-          image: caffeqq/journalsystem:account-service
+          image: tattack99/account-service:account-service
+          imagePullPolicy: Always
           ports:
             - containerPort: 8081
           env:
