@@ -3,7 +3,6 @@ package com.example.journalaccountservice.controllers;
 import com.example.journalaccountservice.core.entity.Account;
 import com.example.journalaccountservice.core.service.interfaces.ICookieService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
