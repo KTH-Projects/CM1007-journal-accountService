@@ -37,8 +37,6 @@ import org.slf4j.LoggerFactory;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Autowired
-    JwtAuthConverter jwtAuthConveter;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -53,15 +51,12 @@ public class SecurityConfig {
                     .anyRequest().authenticated();
         });
 
-        http.oauth2ResourceServer(oauth2 -> {oauth2.jwt(jwtConfigurer -> {
-                        jwtConfigurer.jwtAuthenticationConverter(jwtAuthConveter);
-                    });
-                });
+        http.oauth2ResourceServer(oauth2 ->oauth2.jwt(Customizer.withDefaults()));
 
         http.sessionManagement(t -> t.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
-/*
+
     @Bean
     public DefaultMethodSecurityExpressionHandler msecurity(){
         DefaultMethodSecurityExpressionHandler defaultMethodSecurityExpressionHandler = new DefaultMethodSecurityExpressionHandler();
@@ -78,7 +73,7 @@ public class SecurityConfig {
         c.setJwtGrantedAuthoritiesConverter(cv);
         return c;
     }
- */
+
 
 }
 
