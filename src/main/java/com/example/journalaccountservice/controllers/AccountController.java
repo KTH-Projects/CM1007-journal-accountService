@@ -127,7 +127,7 @@ public class AccountController {
         }
     }
 
-    @PreAuthorize("hasRole('user')")
+    //@PreAuthorize("hasRole('admin')")
     @PostMapping(path = "/login")
     public ResponseEntity<Account> login(@RequestBody Account accountLogin, HttpServletResponse response) {
         System.out.println("Hello login");
