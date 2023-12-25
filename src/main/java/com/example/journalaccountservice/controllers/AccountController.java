@@ -13,7 +13,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.List;
 
@@ -28,18 +30,16 @@ public class AccountController {
     private final IJournalService journalService;
     private final IChatService chatService;
 
+
     @Autowired
-    public AccountController(IAccountsService accountService, ICookieService cookieService,
-                             IJournalService journalService,
-                             IChatService chatService
-                             ) {
+    public AccountController(IAccountsService accountService, ICookieService cookieService, IJournalService journalService, IChatService chatService) {
         this.accountService = accountService;
         this.cookieService = cookieService;
         this.journalService = journalService;
         this.chatService = chatService;
     }
 
-
+    @PreAuthorize("hasRole('user')")
     @GetMapping("")
     public ResponseEntity<List<Account>> getAll(@CookieValue("userCookieID") String userSessionID)
     {
@@ -48,6 +48,7 @@ public class AccountController {
 
     }
 
+    @PreAuthorize("hasRole('staff')")
     @GetMapping("/{email}")
     public ResponseEntity<Account> getByEmail(@PathVariable String email,@CookieValue("userCookieID") String userCookieID) {
         if(!cookieService.isDoctorOrStaff(userCookieID)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -59,43 +60,8 @@ public class AccountController {
 
         return ResponseEntity.ok(account);
     }
-        /*
-    @GetMapping("/chats")
-    public ResponseEntity<List<Chat>> getAllChats(HttpSession session,@CookieValue("userSessionID") String userSessionID){
-        if(!cookieService.isValidSession(userSessionID)) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
-        return ResponseEntity.ok(chatService.findAll());
-    }
-
-    @GetMapping("/chat")
-    public ResponseEntity<List<Chat>> getAllAccountChats(HttpSession session,@CookieValue("userSessionID") String userSessionID){
-        if(!cookieService.isValidCookie(userSessionID)) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        Account fromAccount = cookieService.findAccountByCookie(userSessionID);
-        return ResponseEntity.ok(chatService.findByAccountID(fromAccount.getId()));
-    }
-
-    @GetMapping("/chatTo")
-    public ResponseEntity<List<Chat>> getChatConversation(@RequestParam String toEmail,@CookieValue("userSessionID") String userSessionID){
-        if(!cookieService.isValidCookie(userSessionID)) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        Account fromAccount = cookieService.findAccountByCookie(userSessionID);
-        Account account = accountService.findByEmail(toEmail);
-        if(account==null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        return ResponseEntity.ok(chatService.findByMyAccount_IDAndToAccount_ID(fromAccount.getId(),account.getId()));
-    }
-
-    @PostMapping("/chat")
-    public ResponseEntity<Chat> sendChat(@RequestParam String toEmail,@RequestParam String message, HttpSession session,@CookieValue("userSessionID") String userSessionID){
-        if(!cookieService.isValidCookie(userSessionID)) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        Account account = cookieService.findAccountByCookie(userSessionID);
-        if(account == null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        String fromEmail = account.getEmail();
-        Account toAccount = accountService.findByEmail(toEmail);
-        Account fromAccount = accountService.findByEmail(fromEmail);
-        return ResponseEntity.ok(chatService.createByEmail(toAccount,fromAccount,message));
-    }
-
-         */
+    @PreAuthorize("hasRole('user')")
     @PostMapping("/send")
     public ResponseEntity<Message> sendChat(@RequestParam String toEmail,@RequestParam String message,@CookieValue("userCookieID") String userCookieID){
         Account fromAcc = cookieService.findAccountByCookie(userCookieID);
@@ -107,15 +73,17 @@ public class AccountController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         return new ResponseEntity<>(msg,HttpStatus.CREATED);
     }
+    @PreAuthorize("hasRole('user')")
     @GetMapping("/message")
     public ResponseEntity<List<Message>> getMyMessages(@CookieValue("userCookieID") String userCookieID){
+
         Account fromAcc = cookieService.findAccountByCookie(userCookieID);
         List<Message> messages = chatService.getChatsFromAccount(fromAcc);
         if(messages==null)
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         return new ResponseEntity<>(messages,HttpStatus.CREATED);
     }
-
+    @PreAuthorize("hasRole('user')")
     @GetMapping("/message/chat")
     public ResponseEntity<List<Message>> getMessagesFromAccAndToAcc(@RequestParam String toEmail,
                                                                     @CookieValue("userCookieID") String userCookieID){
@@ -159,16 +127,10 @@ public class AccountController {
         }
     }
 
-    private void setIdForAccount(Account account, String id){
-        if(account.getRole().name().equals("doctor") || account.getRole().name().equals( "staff" ) )
-            account.setStaffID(id);
-        else
-            account.setPatientID(id);
-
-    }
-
+    @PreAuthorize("hasRole('user')")
     @PostMapping(path = "/login")
     public ResponseEntity<Account> login(@RequestBody Account accountLogin, HttpServletResponse response) {
+        System.out.println("Hello login");
         Account accountCore = accountService.findByEmail(accountLogin.getEmail());
         if (accountCore == null || ! accountLogin.getPassword().equals(accountCore.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -179,5 +141,13 @@ public class AccountController {
         userCookieID.setPath("/");
         response.addCookie(userCookieID);
         return ResponseEntity.ok(accountCore);
+    }
+
+    private void setIdForAccount(Account account, String id){
+        if(account.getRole().name().equals("doctor") || account.getRole().name().equals( "staff" ) )
+            account.setStaffID(id);
+        else
+            account.setPatientID(id);
+
     }
 }
