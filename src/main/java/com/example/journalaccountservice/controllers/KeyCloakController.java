@@ -27,7 +27,6 @@ public class KeyCloakController {
 
     @GetMapping
     public UserRepresentation getUser(Principal principal){
-        System.out.println("hello");
         return keycloakService.getUserById(principal.getName());
     }
 
