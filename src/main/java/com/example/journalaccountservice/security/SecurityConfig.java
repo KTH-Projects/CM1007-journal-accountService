@@ -2,6 +2,7 @@ package com.example.journalaccountservice.security;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,6 +18,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
@@ -37,6 +40,9 @@ import org.slf4j.LoggerFactory;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    //@Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+    //private String jwkSetUri;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -47,7 +53,7 @@ public class SecurityConfig {
             authorize
                     .requestMatchers(HttpMethod.POST,"/account/login").permitAll()
                     .requestMatchers(HttpMethod.POST,"/account/signup").permitAll()
-                    .requestMatchers(HttpMethod.GET,"/keycloak/users").permitAll()
+                    .requestMatchers("/keycloak/**").permitAll()
                     .anyRequest().authenticated();
         });
 
@@ -73,6 +79,13 @@ public class SecurityConfig {
         c.setJwtGrantedAuthoritiesConverter(cv);
         return c;
     }
+
+    /*
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
+    }
+     */
 
 
 }
