@@ -85,8 +85,10 @@ public class AccountController {
     }
     @PreAuthorize("hasRole('user')")
     @GetMapping("/message/chat")
-    public ResponseEntity<List<Message>> getMessagesFromAccAndToAcc(@RequestParam String toEmail,
-                                                                    @CookieValue("userCookieID") String userCookieID){
+    public ResponseEntity<List<Message>> getMessagesFromAccAndToAcc(
+            @RequestParam String toEmail,
+            @CookieValue("userCookieID") String userCookieID){
+
         Account fromAcc = cookieService.findAccountByCookie(userCookieID);
         Account toAccount = accountService.findByEmail(toEmail);
         if(fromAcc == null || toAccount == null)
@@ -98,8 +100,7 @@ public class AccountController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<Account> signUp(@RequestBody SignUpRequest signUpRequest,
-                                          HttpServletResponse response) {
+    public ResponseEntity<Account> signUp(@RequestBody SignUpRequest signUpRequest, HttpServletResponse response) {
         try {
             if(accountService.findByEmail(signUpRequest.getAccount().getEmail()) != null)
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -127,10 +128,9 @@ public class AccountController {
         }
     }
 
-    //@PreAuthorize("hasRole('admin')")
+    //@PreAuthorize("hasRole('doctor')")
     @PostMapping(path = "/login")
     public ResponseEntity<Account> login(@RequestBody Account accountLogin, HttpServletResponse response) {
-        System.out.println("Hello login");
         Account accountCore = accountService.findByEmail(accountLogin.getEmail());
         if (accountCore == null || ! accountLogin.getPassword().equals(accountCore.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
