@@ -13,7 +13,10 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +53,7 @@ public class KeycloakService implements IKeycloakService {
         try{
         String userId = CreatedResponseUtil.getCreatedId(response);
 
-        Keycloak keycloak = keycloakUtil.getKeycloakInstance();
+        Keycloak keycloak = keycloakUtil.getKeycloakInstanceAdmin();
         RealmResource realmResource = keycloak.realm(keycloakUtil.getRealm());
         RolesResource rolesResource = realmResource.roles();
 
@@ -75,6 +78,9 @@ public class KeycloakService implements IKeycloakService {
                     assignedRoles.add(additionalRole);
                     break;
                 case "patient" :
+                    assignedRoles.add(additionalRole);
+                    break;
+                case "admin" :
                     assignedRoles.add(additionalRole);
                     break;
             }
@@ -113,10 +119,17 @@ public class KeycloakService implements IKeycloakService {
     }
 
     private UsersResource getUserResource(){
-        Keycloak keycloak = keycloakUtil.getKeycloakInstance();
+        Keycloak keycloak = keycloakUtil.getKeycloakInstanceAdmin();
         RealmResource realm = keycloak.realm(keycloakUtil.getRealm());
         return realm.users();
     }
+
+    public ResponseEntity<?> authenticateUser(String username, String password) {
+        // Delegate to KeycloakSecurityUtil to authenticate with Keycloak
+        return keycloakUtil.authenticateUser(username, password);
+    }
+
+
 
     @Override
     public UserRepresentation getUserById(String userId) {
@@ -127,5 +140,25 @@ public class KeycloakService implements IKeycloakService {
     public Boolean deleteUserById(String userId) {
         Response r = getUserResource().delete(userId);
         return r.getStatus() == 204;
+    }
+
+    @Override
+    public UserRepresentation getUserByToken(String token) {
+        // Remove "Bearer " prefix if it exists
+        token = token.replace("Bearer ", "").trim();
+
+        // Assume KeycloakSecurityUtil has a method to decode the access token and get the subject or username
+        String subject = keycloakUtil.getSubjectFromToken(token);
+
+        if (subject == null || subject.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+        }
+
+        // Use the subject to get user details from Keycloak
+        Keycloak keycloakInstance = keycloakUtil.getKeycloakInstanceAdmin();
+        UsersResource usersResource = keycloakInstance.realm(keycloakUtil.getRealm()).users();
+        UserRepresentation userRepresentation = usersResource.get(subject).toRepresentation();
+
+        return userRepresentation;
     }
 }

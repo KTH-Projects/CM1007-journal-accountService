@@ -3,6 +3,7 @@ package com.example.journalaccountservice.core.service.interfaces;
 
 
 import com.example.journalaccountservice.core.entity.Account;
+import org.keycloak.representations.idm.UserRepresentation;
 
 import java.util.List;
 
@@ -13,5 +14,7 @@ public interface IAccountsService {
     public Account findByID(String id);
     public Account create(Account account);
     public Account findBySessionID(String ID);
+    public Account findByUserRepresentation(UserRepresentation userRepresentation);
 
-}
+
+    }

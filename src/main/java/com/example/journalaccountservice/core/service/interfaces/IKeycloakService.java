@@ -9,4 +9,5 @@ public interface IKeycloakService {
     UserRepresentation getUserById(String userId);
     //UserRepresentation updateUserById(String userId);
     Boolean deleteUserById(String userId);
+    UserRepresentation getUserByToken(String token);
 }

@@ -2,6 +2,7 @@ package com.example.journalaccountservice.controllers;
 
 import com.example.journalaccountservice.core.entity.Account;
 import com.example.journalaccountservice.core.entity.Message;
+import com.example.journalaccountservice.core.service.KeycloakService;
 import com.example.journalaccountservice.core.service.interfaces.IAccountsService;
 import com.example.journalaccountservice.core.service.interfaces.IChatService;
 import com.example.journalaccountservice.core.service.interfaces.ICookieService;
@@ -29,14 +30,16 @@ public class AccountController {
     private final ICookieService cookieService;
     private final IJournalService journalService;
     private final IChatService chatService;
+    private final KeycloakService keycloakService;
 
 
     @Autowired
-    public AccountController(IAccountsService accountService, ICookieService cookieService, IJournalService journalService, IChatService chatService) {
+    public AccountController(IAccountsService accountService, ICookieService cookieService, IJournalService journalService, IChatService chatService, KeycloakService keycloakService) {
         this.accountService = accountService;
         this.cookieService = cookieService;
         this.journalService = journalService;
         this.chatService = chatService;
+        this.keycloakService = keycloakService;
     }
 
     @PreAuthorize("hasRole('user')")
@@ -85,10 +88,7 @@ public class AccountController {
     }
     @PreAuthorize("hasRole('user')")
     @GetMapping("/message/chat")
-    public ResponseEntity<List<Message>> getMessagesFromAccAndToAcc(
-            @RequestParam String toEmail,
-            @CookieValue("userCookieID") String userCookieID){
-
+    public ResponseEntity<List<Message>> getMessagesFromAccAndToAcc(@RequestParam String toEmail, @CookieValue("userCookieID") String userCookieID){
         Account fromAcc = cookieService.findAccountByCookie(userCookieID);
         Account toAccount = accountService.findByEmail(toEmail);
         if(fromAcc == null || toAccount == null)
@@ -102,6 +102,9 @@ public class AccountController {
     @PostMapping("/signup")
     public ResponseEntity<Account> signUp(@RequestBody SignUpRequest signUpRequest, HttpServletResponse response) {
         try {
+            if(keycloakService.createUser(signUpRequest.getAccount()) == null){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             if(accountService.findByEmail(signUpRequest.getAccount().getEmail()) != null)
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             String id = journalService.create(signUpRequest.getSignupDTO());
@@ -128,21 +131,22 @@ public class AccountController {
         }
     }
 
-
-    //@PreAuthorize("hasRole('doctor')")
     @PostMapping(path = "/login")
     public ResponseEntity<Account> login(@RequestBody Account accountLogin, HttpServletResponse response) {
-        System.out.println("Hello login");
         Account accountCore = accountService.findByEmail(accountLogin.getEmail());
         if (accountCore == null || ! accountLogin.getPassword().equals(accountCore.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+
+
         String cookieToken = cookieService.createCookie(accountCore);
         Cookie userCookieID = new Cookie("userCookieID", cookieToken);
         userCookieID.setPath("/");
         response.addCookie(userCookieID);
-        return ResponseEntity.ok(accountCore);
+
+        return (ResponseEntity<Account>) keycloakService.authenticateUser(accountLogin.getName(), accountLogin.getPassword());
+
     }
 
     private void setIdForAccount(Account account, String id){

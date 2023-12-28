@@ -5,6 +5,7 @@ import com.example.journalaccountservice.core.entity.Account;
 import com.example.journalaccountservice.core.service.interfaces.IAccountsService;
 import com.example.journalaccountservice.persistence.entity.AccountDB;
 import com.example.journalaccountservice.persistence.repositories.AccountRepository;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -75,6 +76,13 @@ public class AccountsService implements IAccountsService {
         if(account==null) return null;
 
         return Account.convertFromDB(account);
+    }
+
+    @Override
+    public Account findByUserRepresentation(UserRepresentation userRepresentation) {
+        String email = userRepresentation.getEmail();
+        AccountDB accountDB = accountRepository.findByEmail(email);
+        return Account.convertFromDB(accountDB);
     }
 
 }
