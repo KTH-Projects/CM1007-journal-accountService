@@ -13,8 +13,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +30,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.cors(AbstractHttpConfigurer::disable);
+
+        http.cors(core->{
+            core.configurationSource(corsConfigurationSource());
+        });
         http.csrf(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests(authorize -> {
@@ -33,6 +41,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST,"/account/login").permitAll()
                     .requestMatchers(HttpMethod.POST,"/account/signup").permitAll()
                     .requestMatchers(HttpMethod.GET,"/keycloak/users").permitAll()
+                    .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
                     .anyRequest().authenticated();
         });
 
@@ -70,6 +79,20 @@ public class SecurityConfig {
         });
         return jwtAuthenticationConverter;
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // Adjust as necessary
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source; // This is actually an instance of UrlBasedCorsConfigurationSource
+    }
+
 
 }
 
