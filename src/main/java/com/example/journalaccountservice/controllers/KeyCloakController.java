@@ -38,6 +38,7 @@ public class KeyCloakController {
         return keycloakService.authenticateUser(account.getName(), account.getPassword());
     }
 
+    @PreAuthorize("hasRole('doctor')")
     @GetMapping("/doctorId")
     public ResponseEntity<String> getAccount(@RequestHeader("Authorization") String token){
         UserRepresentation userRepresentation = keycloakService.getUserByToken(token);
