@@ -2,9 +2,9 @@ name: Java CI with Docker Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 env:
   SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/accountDB
