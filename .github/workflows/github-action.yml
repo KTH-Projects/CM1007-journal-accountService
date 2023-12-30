@@ -9,7 +9,7 @@ on:
 env:
   SPRING_DATASOURCE_URL: jdbc:mysql://130.237.11.66:2526
   SPRING_DATASOURCE_USERNAME: root
-  SPRING_DATASOURCE_PASSWORD: bananas
+  SPRING_DATASOURCE_PASSWORD: password
 
 jobs:
   build-test-and-deploy:
