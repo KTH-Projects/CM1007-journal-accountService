@@ -87,6 +87,7 @@ public class SecurityConfig {
                 System.getenv("FRONTEND_URL"),
                 System.getenv("JOURNAL_SERVICE_URL")
         )); // Adjust as necessary
+        //configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // Adjust as necessary
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
