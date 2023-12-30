@@ -7,9 +7,9 @@ on:
     branches: [ master ]
 
 env:
-  SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/accountDB
+  SPRING_DATASOURCE_URL: jdbc:mysql://130.237.11.66:2526
   SPRING_DATASOURCE_USERNAME: root
-  SPRING_DATASOURCE_PASSWORD: ${{ secrets.MY_SQL_PASSWORD }}
+  SPRING_DATASOURCE_PASSWORD: bananas
 
 jobs:
   build-test-and-deploy:
@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '21'
-          distribution: 'temurin' # or 'adopt' based on the available distributions
+          distribution: 'temurin'
 
       - name: Cache Maven packages
         uses: actions/cache@v3
