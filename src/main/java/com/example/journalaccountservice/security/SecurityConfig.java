@@ -38,6 +38,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorize -> {
             authorize
+                    .requestMatchers("").permitAll()
                     .requestMatchers(HttpMethod.POST,"/account/login").permitAll()
                     .requestMatchers(HttpMethod.POST,"/account/signup").permitAll()
                     .requestMatchers(HttpMethod.GET,"/keycloak/users").permitAll()
