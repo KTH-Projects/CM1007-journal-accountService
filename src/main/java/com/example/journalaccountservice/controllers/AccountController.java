@@ -145,7 +145,7 @@ public class AccountController {
         userCookieID.setPath("/");
         response.addCookie(userCookieID);
 
-        return (ResponseEntity<Account>) keycloakService.authenticateUser(accountLogin.getName(), accountLogin.getPassword());
+        return (ResponseEntity<Account>) keycloakService.authenticateUser(accountCore.getName(), accountLogin.getPassword());
 
     }
 
