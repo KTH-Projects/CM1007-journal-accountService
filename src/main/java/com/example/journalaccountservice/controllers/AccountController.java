@@ -8,6 +8,7 @@ import com.example.journalaccountservice.core.service.interfaces.IChatService;
 import com.example.journalaccountservice.core.service.interfaces.ICookieService;
 import com.example.journalaccountservice.core.service.interfaces.IJournalService;
 import com.example.journalaccountservice.view.dto.SignUpRequest;
+import com.example.journalaccountservice.view.entity.AccountView;
 import jakarta.persistence.EntityExistsException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,8 +53,8 @@ public class AccountController {
     }
 
     @PreAuthorize("hasRole('staff')")
-    @GetMapping("/{email}")
-    public ResponseEntity<Account> getByEmail(@PathVariable String email,@CookieValue("userCookieID") String userCookieID) {
+    @GetMapping("/userEmail")
+    public ResponseEntity<AccountView> getByEmail(@RequestParam String email, @CookieValue("userCookieID") String userCookieID) {
         if(!cookieService.isDoctorOrStaff(userCookieID)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         Account account = accountService.findByEmail(email);
@@ -61,7 +62,7 @@ public class AccountController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(account);
+        return ResponseEntity.ok(AccountView.convert(account));
     }
 
     @PreAuthorize("hasRole('user')")

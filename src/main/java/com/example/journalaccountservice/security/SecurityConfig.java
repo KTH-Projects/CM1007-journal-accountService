@@ -90,10 +90,11 @@ public class SecurityConfig {
         )); // Adjust as necessary
         //configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // Adjust as necessary
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type","Access-Control-Allow-Origin"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type","Access-Control-Allow-Origin","userCookieID"));
         configuration.addExposedHeader("Access-Control-Allow-Credentials");
         configuration.addExposedHeader("Access-Control-Allow-Origin");
         configuration.addExposedHeader("Authorization");
+        configuration.addExposedHeader("userCookieID");
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
