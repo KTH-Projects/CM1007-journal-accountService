@@ -13,16 +13,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.time.Duration;
 
 @Service
 public class JournalService implements IJournalService {
     private final WebClient webClient;
     private final KeycloakSecurityUtil keycloakUtil;
-    private static final Logger logger = LoggerFactory.getLogger(JournalService.class);
-
 
     @Autowired
     public JournalService(KeycloakSecurityUtil keycloakUtil){
@@ -62,22 +58,16 @@ public class JournalService implements IJournalService {
     @Override
     public String postM_Staff(SignUpDTO signUpDTO) {
         try{
-            logger.info("Attempting to post to /staff with SignUpDTO: {}", signUpDTO);
             String json = webClient.post()
                     .uri("/staff")
-                    .body(Mono.just(signUpDTO), SignUpDTO.class)
+                    .body(Mono.just(signUpDTO), SignUpDTO.class)  // Send SignUpDTO in the request body
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
-            logger.info("Successfully posted! JSON: {}", json);
+            System.out.println("Successfully post! JSON: " + json);
             return json;
         }catch (Exception e){
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            String stackTrace = sw.toString(); // stack trace as a string
-            logger.error("Could not create staff: {}", e.getMessage());
-            logger.error("Stack Trace: {}", stackTrace);
+            System.out.println("Could not create staff: "+ e.getMessage());
             return null;
         }
     }
