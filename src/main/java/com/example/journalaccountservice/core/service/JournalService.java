@@ -3,9 +3,8 @@ package com.example.journalaccountservice.core.service;
 import com.example.journalaccountservice.core.service.interfaces.IJournalService;
 import com.example.journalaccountservice.security.KeycloakSecurityUtil;
 import com.example.journalaccountservice.view.dto.SignUpDTO;
-import org.keycloak.admin.client.Keycloak;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -18,9 +17,10 @@ public class JournalService implements IJournalService {
     @Autowired
     public JournalService(KeycloakSecurityUtil keycloakUtil){
         this.keycloakUtil = keycloakUtil;
-        this.webClient = WebClient.create(System.getenv("JOURNAL_SERVICE_URL"));
-        //System.out.println(System.getenv("JOURNAL_SERVICE_URL"));
+        //this.webClient = WebClient.create(System.getenv("JOURNAL_SERVICE_URL"));
+        this.webClient = WebClient.builder().baseUrl(System.getenv("JOURNAL_SERVICE_URL")).build();
     }
+
     @Override
     public String postPatient(SignUpDTO signUpDTO) {
         try{
@@ -41,11 +41,8 @@ public class JournalService implements IJournalService {
     @Override
     public String postM_Staff(SignUpDTO signUpDTO) {
         try{
-            //String token = keycloakUtil.getServiceToken().block();
-            //System.out.println(token);
             String json = webClient.post()
                     .uri("/staff")
-                    //.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                     .body(Mono.just(signUpDTO), SignUpDTO.class)  // Send SignUpDTO in the request body
                     .retrieve()
                     .bodyToMono(String.class)
