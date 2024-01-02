@@ -4,6 +4,8 @@ import com.example.journalaccountservice.core.service.interfaces.IJournalService
 import com.example.journalaccountservice.security.KeycloakSecurityUtil;
 import com.example.journalaccountservice.view.dto.SignUpDTO;
 import io.netty.channel.ChannelOption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
@@ -11,12 +13,16 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.Duration;
 
 @Service
 public class JournalService implements IJournalService {
     private final WebClient webClient;
     private final KeycloakSecurityUtil keycloakUtil;
+    private static final Logger logger = LoggerFactory.getLogger(JournalService.class);
+
 
     @Autowired
     public JournalService(KeycloakSecurityUtil keycloakUtil){
@@ -56,16 +62,22 @@ public class JournalService implements IJournalService {
     @Override
     public String postM_Staff(SignUpDTO signUpDTO) {
         try{
+            logger.info("Attempting to post to /staff with SignUpDTO: {}", signUpDTO);
             String json = webClient.post()
                     .uri("/staff")
-                    .body(Mono.just(signUpDTO), SignUpDTO.class)  // Send SignUpDTO in the request body
+                    .body(Mono.just(signUpDTO), SignUpDTO.class)
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
-            System.out.println("Successfully post! JSON: " + json);
+            logger.info("Successfully posted! JSON: {}", json);
             return json;
         }catch (Exception e){
-            System.out.println("Could not create staff: "+ e.getMessage());
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            String stackTrace = sw.toString(); // stack trace as a string
+            logger.error("Could not create staff: {}", e.getMessage());
+            logger.error("Stack Trace: {}", stackTrace);
             return null;
         }
     }
