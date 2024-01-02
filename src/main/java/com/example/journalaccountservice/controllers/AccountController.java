@@ -21,7 +21,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = {"http://localhost:8080","http://localhost:3000"})
+@CrossOrigin(origins = {
+        "http://localhost:8080",
+        "http://localhost:3000",
+        "https://journal-journal-1.app.cloud.cbh.kth.se"})
 @RestController
 @RequestMapping("/account")
 public class AccountController {

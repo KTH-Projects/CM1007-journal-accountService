@@ -3,22 +3,36 @@ package com.example.journalaccountservice.core.service;
 import com.example.journalaccountservice.core.service.interfaces.IJournalService;
 import com.example.journalaccountservice.security.KeycloakSecurityUtil;
 import com.example.journalaccountservice.view.dto.SignUpDTO;
+import io.netty.channel.ChannelOption;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
+
+import java.time.Duration;
 
 @Service
 public class JournalService implements IJournalService {
     private final WebClient webClient;
     private final KeycloakSecurityUtil keycloakUtil;
 
-    @Autowired
     public JournalService(KeycloakSecurityUtil keycloakUtil){
         this.keycloakUtil = keycloakUtil;
-        //this.webClient = WebClient.create(System.getenv("JOURNAL_SERVICE_URL"));
-        this.webClient = WebClient.builder().baseUrl(System.getenv("JOURNAL_SERVICE_URL")).build();
+        this.webClient = createWebClientWithTimeout(60); // 60 seconds timeout
+    }
+
+    // Helper method to create a WebClient with custom timeout
+    private WebClient createWebClientWithTimeout(long timeoutSeconds) {
+        HttpClient httpClient = HttpClient.create()
+                .responseTimeout(Duration.ofSeconds(timeoutSeconds)) // Setting the response timeout
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) Duration.ofSeconds(timeoutSeconds).toMillis()); // Setting the connection timeout
+
+        return WebClient.builder()
+                .baseUrl(System.getenv("JOURNAL_SERVICE_URL"))
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .build();
     }
 
     @Override
