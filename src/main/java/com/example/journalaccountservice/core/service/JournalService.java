@@ -23,7 +23,8 @@ public class JournalService implements IJournalService {
     @Autowired
     public JournalService(KeycloakSecurityUtil keycloakUtil){
         this.keycloakUtil = keycloakUtil;
-        this.webClient = createWebClientWithTimeout(60); // 60 seconds timeout
+        //this.webClient = createWebClientWithTimeout(60); // 60 seconds timeout
+        this.webClient = WebClient.builder().baseUrl(System.getenv("JOURNAL_SERVICE_URL")).build();
     }
 
     // Helper method to create a WebClient with custom timeout
